@@ -16,11 +16,12 @@ def analyze():
         upi_id = data.get('upiId', '')
         merchant_name = data.get('merchantName', '')
         amount = data.get('amount', 0)
+        reports_count = data.get('reportsCount', 0)
         
         if not upi_id:
             return jsonify({"error": "upiId is required"}), 400
             
-        result = analyze_transaction(upi_id, merchant_name, amount)
+        result = analyze_transaction(upi_id, merchant_name, amount, reports_count)
         
         return jsonify(result), 200
 

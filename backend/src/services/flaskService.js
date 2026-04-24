@@ -11,7 +11,8 @@ const analyzeScan = async (scanData, retries = 3, timeout = 5000) => {
   const payload = {
     upiId: scanData.upiId,
     merchantName: scanData.merchantName,
-    amount: scanData.amount
+    amount: scanData.amount,
+    reportsCount: scanData.reportsCount || 0
   };
 
   for (let attempt = 1; attempt <= retries; attempt++) {

@@ -1,6 +1,6 @@
 from rules import check_trusted_merchant, check_fake_support_name
 
-def analyze_transaction(upi_id, merchant_name, amount):
+def analyze_transaction(upi_id, merchant_name, amount, reports_count=0):
     """
     Rule-based scoring engine.
     Risk scoring:
@@ -15,7 +15,7 @@ def analyze_transaction(upi_id, merchant_name, amount):
     # 1. Check for fake support names / dangerous keywords in UPI
     if check_fake_support_name(upi_id):
         risk_score += 80
-        reasons.append("Reported suspicious UPI formatting")
+        reasons.append("Reported suspicious UPI formatting (e.g. fake support/reward)")
     
     # 2. Check Amount
     try:
@@ -39,10 +39,16 @@ def analyze_transaction(upi_id, merchant_name, amount):
             risk_score += 20
             reasons.append("No merchant name provided")
 
-    # 4. New UPI Logic (Simulated by checking if it looks like a standard format or completely random)
+    # 4. New UPI Logic
     if risk_score == 0 and not check_trusted_merchant(merchant_name):
         risk_score += 15
         reasons.append("New/Unknown UPI")
+
+    # 5. Dynamic Risk from Blacklist/Reports
+    if reports_count > 0:
+        added_risk = reports_count * 20
+        risk_score += added_risk
+        reasons.append(f"UPI ID has been reported {reports_count} time(s)")
 
     # Cap the score between 0 and 100
     risk_score = max(0, min(100, risk_score))
