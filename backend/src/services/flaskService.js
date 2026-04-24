@@ -16,11 +16,27 @@ const analyzeScan = async (scanData) => {
     return response.data;
     */
     
-    // Mock response for now
+    // Mock logic based on rules
+    let risk_score = 15;
+    let status = 'SAFE';
+    let reason = 'Trusted merchant and low amount';
+
+    if (scanData.amount > 5000) {
+      risk_score = 45;
+      status = 'SUSPICIOUS';
+      reason = 'Unusual amount';
+    }
+
+    if (scanData.upiId.includes('customercare') || scanData.upiId.includes('support')) {
+      risk_score = 85;
+      status = 'HIGH RISK';
+      reason = 'Reported suspicious UPI formatting';
+    }
+
     return {
-      risk_score: 10,
-      status: 'SAFE',
-      reason: 'Mock response from flaskService'
+      risk_score,
+      status,
+      reason
     };
   } catch (error) {
     console.error('Error calling Flask service:', error.message);
