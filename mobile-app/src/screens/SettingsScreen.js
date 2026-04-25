@@ -2,33 +2,29 @@ import React from 'react';
 import { View, Text, Switch, TouchableOpacity, StyleSheet } from 'react-native';
 import { useSettings } from '../context/SettingsContext';
 
-const SettingsScreen = () => {
-  const { language, simpleMode, changeLanguage, toggleSimpleMode } = useSettings();
+import LanguageSelector from '../components/LanguageSelector';
+import { translations } from '../data/translations';
 
-  const handleLanguageChange = () => {
-    const newLang = language === 'English' ? 'Spanish' : 'English';
-    changeLanguage(newLang);
-  };
+import { ShieldAlert } from 'lucide-react-native';
+import SettingToggle from '../components/SettingToggle';
+
+const SettingsScreen = () => {
+  const { language, simpleMode, toggleSimpleMode } = useSettings();
+  const t = translations[language] || translations['English'];
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Global Settings Example</Text>
+      <Text style={styles.title}>{t.globalSettings}</Text>
+
+      <SettingToggle 
+        label="Simple Safety Mode" 
+        description="Bigger text, simpler words, stronger warnings for elderly & beginners."
+        icon={ShieldAlert}
+      />
 
       <View style={styles.settingRow}>
-        <Text style={styles.settingText}>Simple Safety Mode</Text>
-        <Switch
-          value={simpleMode}
-          onValueChange={toggleSimpleMode}
-          trackColor={{ false: '#767577', true: '#81b0ff' }}
-          thumbColor={simpleMode ? '#f5dd4b' : '#f4f3f4'}
-        />
-      </View>
-
-      <View style={styles.settingRow}>
-        <Text style={styles.settingText}>Language: {language}</Text>
-        <TouchableOpacity style={styles.button} onPress={handleLanguageChange}>
-          <Text style={styles.buttonText}>Toggle Language</Text>
-        </TouchableOpacity>
+        <Text style={styles.settingText}>Language</Text>
+        <LanguageSelector />
       </View>
 
       <View style={styles.infoContainer}>

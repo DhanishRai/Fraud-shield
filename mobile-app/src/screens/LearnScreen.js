@@ -1,12 +1,17 @@
 import React, { useState, useRef } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Dimensions } from 'react-native';
 import { ArrowLeft, BookOpen } from 'lucide-react-native';
-import { lessons } from '../data/lessons';
+import { translations } from '../data/translations';
 import LessonCard from '../components/LessonCard';
+import LanguageSelector from '../components/LanguageSelector';
+import SettingToggle from '../components/SettingToggle';
+import { useSettings } from '../context/SettingsContext';
 
 const { width } = Dimensions.get('window');
 
 const LearnScreen = ({ navigation }) => {
+  const { language } = useSettings();
+  const t = translations[language] || translations['English'];
   const [currentIndex, setCurrentIndex] = useState(0);
   const flatListRef = useRef(null);
 
@@ -21,7 +26,7 @@ const LearnScreen = ({ navigation }) => {
   const renderPagination = () => {
     return (
       <View style={styles.paginationContainer}>
-        {lessons.map((_, index) => (
+        {t.lessons.map((_, index) => (
           <View
             key={index}
             style={[
@@ -42,22 +47,29 @@ const LearnScreen = ({ navigation }) => {
         </TouchableOpacity>
         <View style={styles.headerTitleContainer}>
           <BookOpen color="#0066FF" size={20} style={{ marginRight: 8 }} />
-          <Text style={styles.headerTitle}>Learn Safety</Text>
+          <Text style={styles.headerTitle}>{t.learnSafety}</Text>
         </View>
-        <View style={{ width: 24 }} /> {/* Spacer for centering */}
+        <LanguageSelector />
+      </View>
+
+      <View style={{ paddingHorizontal: 20, paddingTop: 15 }}>
+        <SettingToggle 
+          label="Simple Mode" 
+          description="Bigger text, simpler words."
+        />
       </View>
 
       <View style={styles.content}>
-        <Text style={styles.subtitle}>Micro Lessons ({currentIndex + 1}/{lessons.length})</Text>
+        <Text style={styles.subtitle}>{t.microLessons} ({currentIndex + 1}/{t.lessons.length})</Text>
         <Text style={styles.description}>
-          Swipe to learn how to identify and prevent common frauds.
+          {t.swipeToLearn}
         </Text>
 
         <View style={styles.listContainer}>
           <FlatList
             ref={flatListRef}
-            data={lessons}
-            renderItem={({ item }) => <LessonCard lesson={item} />}
+            data={t.lessons}
+            renderItem={({ item }) => <LessonCard lesson={item} t={t} />}
             keyExtractor={(item) => item.id}
             horizontal
             pagingEnabled

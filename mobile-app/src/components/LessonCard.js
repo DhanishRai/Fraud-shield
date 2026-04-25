@@ -13,6 +13,7 @@ import {
   Info,
   Star
 } from 'lucide-react-native';
+import { useSettings } from '../context/SettingsContext';
 
 const { width } = Dimensions.get('window');
 
@@ -27,42 +28,53 @@ const IconMap = {
   ShieldCheck,
 };
 
-const LessonCard = ({ lesson }) => {
+const LessonCard = ({ lesson, t }) => {
+  const { simpleMode } = useSettings();
   const IconComponent = IconMap[lesson.icon] || ShieldCheck;
 
+  // Default to English strings if t is not provided for some reason
+  const problemTitle = t ? t.problem : 'The Problem';
+  const truthTitle = t ? t.truth : 'The Truth';
+  const ruleTitle = t ? t.rule : 'Golden Rule';
+  const takesTimeStr = t ? t.takes30Sec : 'Takes 30 seconds to learn';
+
+  const problemText = simpleMode && lesson.simpleProblem ? lesson.simpleProblem : lesson.problem;
+  const truthText = simpleMode && lesson.simpleTruth ? lesson.simpleTruth : lesson.truth;
+  const ruleText = simpleMode && lesson.simpleRule ? lesson.simpleRule : lesson.rule;
+
   return (
-    <View style={styles.cardContainer}>
+    <View style={[styles.cardContainer, simpleMode && styles.cardContainerSimple]}>
       <View style={styles.cardHeader}>
-        <View style={styles.iconContainer}>
-          <IconComponent color="#0066FF" size={28} />
+        <View style={[styles.iconContainer, simpleMode && { width: 60, height: 60, borderRadius: 30 }]}>
+          <IconComponent color="#0066FF" size={simpleMode ? 36 : 28} />
         </View>
-        <Text style={styles.title}>{lesson.title}</Text>
+        <Text style={[styles.title, simpleMode && styles.titleSimple]}>{lesson.title}</Text>
       </View>
 
-      <Text style={styles.introText}>Takes 30 seconds to learn</Text>
+      <Text style={[styles.introText, simpleMode && styles.introTextSimple]}>{takesTimeStr}</Text>
 
-      <View style={styles.section}>
+      <View style={[styles.section, simpleMode && styles.sectionSimple]}>
         <View style={styles.sectionHeader}>
-          <AlertTriangle color="#FF3B30" size={18} />
-          <Text style={[styles.sectionTitle, { color: '#FF3B30' }]}>The Problem</Text>
+          <AlertTriangle color="#FF3B30" size={simpleMode ? 24 : 18} />
+          <Text style={[styles.sectionTitle, { color: '#FF3B30' }, simpleMode && styles.sectionTitleSimple]}>{problemTitle}</Text>
         </View>
-        <Text style={styles.sectionBody}>{lesson.problem}</Text>
+        <Text style={[styles.sectionBody, simpleMode && styles.sectionBodySimple]}>{problemText}</Text>
       </View>
 
-      <View style={styles.section}>
+      <View style={[styles.section, simpleMode && styles.sectionSimple]}>
         <View style={styles.sectionHeader}>
-          <Info color="#007AFF" size={18} />
-          <Text style={[styles.sectionTitle, { color: '#007AFF' }]}>The Truth</Text>
+          <Info color="#007AFF" size={simpleMode ? 24 : 18} />
+          <Text style={[styles.sectionTitle, { color: '#007AFF' }, simpleMode && styles.sectionTitleSimple]}>{truthTitle}</Text>
         </View>
-        <Text style={styles.sectionBody}>{lesson.truth}</Text>
+        <Text style={[styles.sectionBody, simpleMode && styles.sectionBodySimple]}>{truthText}</Text>
       </View>
 
-      <View style={[styles.section, styles.ruleSection]}>
+      <View style={[styles.section, styles.ruleSection, simpleMode && styles.ruleSectionSimple]}>
         <View style={styles.sectionHeader}>
-          <Star color="#FF9500" size={18} fill="#FF9500" />
-          <Text style={[styles.sectionTitle, { color: '#FF9500' }]}>Golden Rule</Text>
+          <Star color="#FF9500" size={simpleMode ? 24 : 18} fill="#FF9500" />
+          <Text style={[styles.sectionTitle, { color: '#FF9500' }, simpleMode && styles.sectionTitleSimple]}>{ruleTitle}</Text>
         </View>
-        <Text style={styles.ruleBody}>{lesson.rule}</Text>
+        <Text style={[styles.ruleBody, simpleMode && styles.ruleBodySimple]}>{ruleText}</Text>
       </View>
     </View>
   );
@@ -140,6 +152,39 @@ const styles = StyleSheet.create({
     color: '#92400E',
     fontWeight: '600',
     lineHeight: 22,
+  },
+  cardContainerSimple: {
+    borderWidth: 2,
+    borderColor: '#0066FF',
+  },
+  titleSimple: {
+    fontSize: 24,
+  },
+  introTextSimple: {
+    fontSize: 16,
+    color: '#1E293B',
+  },
+  sectionSimple: {
+    padding: 20,
+    marginBottom: 25,
+  },
+  sectionTitleSimple: {
+    fontSize: 20,
+  },
+  sectionBodySimple: {
+    fontSize: 18,
+    lineHeight: 26,
+    color: '#000',
+    fontWeight: '500',
+  },
+  ruleSectionSimple: {
+    borderWidth: 2,
+    borderColor: '#F59E0B',
+  },
+  ruleBodySimple: {
+    fontSize: 18,
+    fontWeight: '800',
+    lineHeight: 26,
   },
 });
 

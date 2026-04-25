@@ -8,10 +8,12 @@ import SecondaryButton from '../components/SecondaryButton';
 import { ShieldAlert, ShieldCheck, AlertTriangle } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { analyzeQR } from '../services/api';
+import { useSettings } from '../context/SettingsContext';
 
 const { width } = Dimensions.get('window');
 
 const ResultScreen = ({ route, navigation }) => {
+  const { simpleMode } = useSettings();
   const { scanData, parsedData } = route.params || {};
   const [loading, setLoading] = useState(true);
   const [analysis, setAnalysis] = useState(null);
@@ -93,9 +95,9 @@ const ResultScreen = ({ route, navigation }) => {
   };
 
   const getStatusLabel = () => {
-    if (isSafe) return 'SAFE';
-    if (isHighRisk) return 'HIGH RISK';
-    return 'SUSPICIOUS';
+    if (isSafe) return simpleMode ? 'SAFE' : 'SAFE';
+    if (isHighRisk) return simpleMode ? 'DANGER!' : 'HIGH RISK';
+    return simpleMode ? 'WARNING!' : 'SUSPICIOUS';
   };
 
   const getStatusIcon = () => {
@@ -131,11 +133,11 @@ const ResultScreen = ({ route, navigation }) => {
         <Animated.View style={{ opacity: opacityAnim, transform: [{ translateY: ringAnim.interpolate({ inputRange: [0, 1], outputRange: [20, 0] }) }] }}>
           <View style={styles.statusBadgeContainer}>
             <View style={[styles.statusBadge, { backgroundColor: getStatusColor() + '15', borderColor: getStatusColor() }]}>
-               <Text style={[styles.statusText, { color: getStatusColor() }]}>{getStatusLabel()}</Text>
+               <Text style={[styles.statusText, { color: getStatusColor() }, simpleMode && { fontSize: 24, fontWeight: '900' }]}>{getStatusLabel()}</Text>
             </View>
           </View>
 
-          {confidence > 0 && (
+          {confidence > 0 && !simpleMode && (
             <Text style={styles.confidenceText}>AI Confidence: {Math.round(confidence * 100)}%</Text>
           )}
 
@@ -148,20 +150,20 @@ const ResultScreen = ({ route, navigation }) => {
           <View style={styles.actionContainer}>
             {isSafe ? (
               <PrimaryButton 
-                title="Proceed to Pay" 
+                title={simpleMode ? "Pay Now" : "Proceed to Pay"}
                 onPress={() => navigation.navigate('PaymentOptions', { paymentData: parsedData })} 
               />
             ) : (
               <>
                 <PrimaryButton 
-                  title="Report this Scam" 
+                  title={simpleMode ? "STOP & REPORT SCAM" : "Report this Scam"}
                   onPress={() => navigation.navigate('ReportScam', { 
                     upiId: parsedData?.upiId 
                   })} 
                   style={{ backgroundColor: '#FF1744' }}
                 />
                 <SecondaryButton 
-                  title="Cancel Payment" 
+                  title={simpleMode ? "GO BACK" : "Cancel Payment"}
                   onPress={() => navigation.navigate('Home')} 
                 />
               </>
