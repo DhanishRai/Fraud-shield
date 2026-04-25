@@ -6,14 +6,19 @@ import { Scan, History, ShieldAlert, Search, ArrowRight, User, Wallet, CreditCar
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSettings } from '../context/SettingsContext';
 import { translations } from '../data/translations';
+import { getHistory } from '../services/api';
+import { useIsFocused } from '@react-navigation/native';
 
 const { width, height } = Dimensions.get('window');
 
 const HomeScreen = ({ navigation }) => {
   const { simpleMode, language } = useSettings();
+  const isFocused = useIsFocused();
   const t = translations[language] || translations['English'];
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
+  
+  const [recentTransactions, setRecentTransactions] = useState([]);
 
   useEffect(() => {
     Animated.parallel([
@@ -30,19 +35,35 @@ const HomeScreen = ({ navigation }) => {
     ]).start();
   }, []);
 
-  const people = [
-    { id: 'p1', name: 'Rajesh', color: '#FF6B6B' },
-    { id: 'p2', name: 'Sneha', color: '#4ECDC4' },
-    { id: 'p3', name: 'Amit', color: '#45B7D1' },
-    { id: 'p4', name: 'Priya', color: '#F7D794' },
-    { id: 'p5', name: 'Rahul', color: '#786FA6' },
-  ];
+  useEffect(() => {
+    if (isFocused) {
+      fetchRecentTransactions();
+    }
+  }, [isFocused]);
 
-  const transactions = [
-    { id: 't1', name: 'Amazon India', amount: '- ₹1,299', status: 'Safe', icon: '🛒' },
-    { id: 't2', name: 'Starbucks', amount: '- ₹350', status: 'Safe', icon: '☕' },
-    { id: 't3', name: 'Unknown User', amount: '- ₹5,000', status: 'Risk', icon: '❓' },
-  ];
+  const fetchRecentTransactions = async () => {
+    try {
+      const result = await getHistory('demo-user');
+      if (result.success && result.data) {
+        // Take top 3 recent ones
+        setRecentTransactions(result.data.slice(0, 3));
+      }
+    } catch (error) {
+      console.log('Home history fetch failed, using fallback:', error.message);
+      // Fallback
+      setRecentTransactions([
+        { _id: 't1', merchantName: 'Amazon India', amount: 1299, status: 'SAFE', icon: '🛒' },
+        { _id: 't2', merchantName: 'Starbucks', amount: 350, status: 'SAFE', icon: '☕' },
+        { _id: 't3', merchantName: 'Unknown User', amount: 5000, status: 'HIGH_RISK', icon: '❓' },
+      ]);
+    }
+  };
+
+  const getStatusLabel = (status) => {
+    if (status === 'SAFE') return 'Safe';
+    if (status === 'SUSPICIOUS') return 'Suspicious';
+    return 'Risk';
+  };
 
   return (
     <ScreenContainer style={{ flex: 1 }}>
@@ -137,36 +158,12 @@ const HomeScreen = ({ navigation }) => {
               <Text style={styles.actionLabel}>{t.home_history}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.actionCard}>
-              <View style={[styles.actionIcon, { backgroundColor: '#E8F5E9' }]}>
-                <Smartphone color="#388E3C" size={24} />
-              </View>
-              <Text style={styles.actionLabel}>{t.home_recharge}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.actionCard}>
               <View style={[styles.actionIcon, { backgroundColor: '#FFF3E0' }]}>
                 <ShieldAlert color="#F57C00" size={24} />
               </View>
               <Text style={styles.actionLabel}>{t.home_reports}</Text>
             </TouchableOpacity>
           </View>
-
-          <Text style={styles.sectionTitle}>{t.home_peopleContacts}</Text>
-          <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} style={styles.peopleScroll}>
-            {people.map((person) => (
-              <TouchableOpacity key={person.id} style={styles.personItem} onPress={() => navigation.navigate('PaymentOptions', { person: person.name })}>
-                <View style={[styles.avatar, { backgroundColor: person.color }]}>
-                  <Text style={styles.avatarText}>{person.name.charAt(0)}</Text>
-                </View>
-                <Text style={styles.personName}>{person.name}</Text>
-              </TouchableOpacity>
-            ))}
-            <TouchableOpacity style={styles.personItem}>
-              <View style={[styles.avatar, { backgroundColor: '#F0F0F0' }]}>
-                <ArrowRight color="#666" size={20} />
-              </View>
-              <Text style={styles.personName}>More</Text>
-            </TouchableOpacity>
-          </ScrollView>
 
           <View style={styles.txHeader}>
             <Text style={styles.sectionTitle}>{t.home_recentTransactions}</Text>
@@ -175,23 +172,29 @@ const HomeScreen = ({ navigation }) => {
             </TouchableOpacity>
           </View>
 
-          {transactions.map((tx) => (
-            <TouchableOpacity key={tx.id} style={styles.txItem} onPress={() => navigation.navigate('Result', { scanData: tx.name })}>
+          {recentTransactions.map((tx) => (
+            <TouchableOpacity key={tx._id} style={styles.txItem} onPress={() => navigation.navigate('Result', { scanData: tx.merchantName, parsedData: { upiId: tx.upiId, name: tx.merchantName, amount: tx.amount } })}>
               <View style={styles.txIconBg}>
-                <Text style={styles.txEmoji}>{tx.icon}</Text>
+                <Text style={styles.txEmoji}>{tx.icon || '💸'}</Text>
               </View>
               <View style={styles.txInfo}>
-                <Text style={styles.txName}>{tx.name}</Text>
+                <Text style={styles.txName}>{tx.merchantName}</Text>
                 <View style={styles.txStatusRow}>
-                  <View style={[styles.statusDot, { backgroundColor: tx.status === 'Safe' ? '#00C853' : '#FF1744' }]} />
-                  <Text style={styles.txStatusText}>{tx.status} Payment</Text>
+                  <View style={[styles.statusDot, { backgroundColor: tx.status === 'SAFE' ? '#00C853' : tx.status === 'SUSPICIOUS' ? '#FF9100' : '#FF1744' }]} />
+                  <Text style={styles.txStatusText}>{getStatusLabel(tx.status)} Payment</Text>
                 </View>
               </View>
-              <Text style={[styles.txAmount, { color: tx.status === 'Safe' ? '#1A1A1A' : '#FF1744' }]}>
-                {tx.amount}
+              <Text style={[styles.txAmount, { color: tx.status === 'SAFE' ? '#1A1A1A' : '#FF1744' }]}>
+                - ₹{tx.amount?.toLocaleString('en-IN')}
               </Text>
             </TouchableOpacity>
           ))}
+
+          {recentTransactions.length === 0 && (
+            <View style={styles.emptyRecent}>
+              <Text style={styles.emptyRecentText}>No recent transactions</Text>
+            </View>
+          )}
 
           <FraudMessageChecker />
 
@@ -385,7 +388,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   actionCard: {
-    width: (width - 60) / 4,
+    width: (width - 60) / 3,
     backgroundColor: '#FFFFFF',
     borderRadius: 15,
     padding: 10,
@@ -578,6 +581,21 @@ const styles = StyleSheet.create({
     color: '#334155',
     marginLeft: 12,
   },
+  emptyRecent: {
+    padding: 20,
+    alignItems: 'center',
+    backgroundColor: '#F8FAFC',
+    borderRadius: 15,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    borderStyle: 'dashed',
+    marginBottom: 20,
+  },
+  emptyRecentText: {
+    color: '#94A3B8',
+    fontSize: 14,
+    fontWeight: '600',
+  }
 });
 
 export default HomeScreen;
