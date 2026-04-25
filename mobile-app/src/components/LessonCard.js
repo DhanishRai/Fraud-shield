@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, ScrollView } from 'react-native';
 import { 
   MessageSquare, 
   QrCode, 
@@ -44,49 +44,50 @@ const LessonCard = ({ lesson, t }) => {
 
   return (
     <View style={[styles.cardContainer, simpleMode && styles.cardContainerSimple]}>
-      <View style={styles.cardHeader}>
-        <View style={[styles.iconContainer, simpleMode && { width: 60, height: 60, borderRadius: 30 }]}>
-          <IconComponent color="#0066FF" size={simpleMode ? 36 : 28} />
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 20 }}>
+        <View style={styles.cardHeader}>
+          <View style={[styles.iconContainer, simpleMode && { width: 60, height: 60, borderRadius: 30 }]}>
+            <IconComponent color="#0066FF" size={simpleMode ? 36 : 28} />
+          </View>
+          <Text style={[styles.title, simpleMode && styles.titleSimple]}>{lesson.title}</Text>
         </View>
-        <Text style={[styles.title, simpleMode && styles.titleSimple]}>{lesson.title}</Text>
-      </View>
 
-      <Text style={[styles.introText, simpleMode && styles.introTextSimple]}>{takesTimeStr}</Text>
+        <Text style={[styles.introText, simpleMode && styles.introTextSimple]}>{takesTimeStr}</Text>
 
-      <View style={[styles.section, simpleMode && styles.sectionSimple]}>
-        <View style={styles.sectionHeader}>
-          <AlertTriangle color="#FF3B30" size={simpleMode ? 24 : 18} />
-          <Text style={[styles.sectionTitle, { color: '#FF3B30' }, simpleMode && styles.sectionTitleSimple]}>{problemTitle}</Text>
+        <View style={[styles.section, simpleMode && styles.sectionSimple]}>
+          <View style={styles.sectionHeader}>
+            <AlertTriangle color="#FF3B30" size={simpleMode ? 24 : 18} />
+            <Text style={[styles.sectionTitle, { color: '#FF3B30' }, simpleMode && styles.sectionTitleSimple]}>{problemTitle}</Text>
+          </View>
+          <Text style={[styles.sectionBody, simpleMode && styles.sectionBodySimple]}>{problemText}</Text>
         </View>
-        <Text style={[styles.sectionBody, simpleMode && styles.sectionBodySimple]}>{problemText}</Text>
-      </View>
 
-      <View style={[styles.section, simpleMode && styles.sectionSimple]}>
-        <View style={styles.sectionHeader}>
-          <Info color="#007AFF" size={simpleMode ? 24 : 18} />
-          <Text style={[styles.sectionTitle, { color: '#007AFF' }, simpleMode && styles.sectionTitleSimple]}>{truthTitle}</Text>
+        <View style={[styles.section, simpleMode && styles.sectionSimple]}>
+          <View style={styles.sectionHeader}>
+            <Info color="#007AFF" size={simpleMode ? 24 : 18} />
+            <Text style={[styles.sectionTitle, { color: '#007AFF' }, simpleMode && styles.sectionTitleSimple]}>{truthTitle}</Text>
+          </View>
+          <Text style={[styles.sectionBody, simpleMode && styles.sectionBodySimple]}>{truthText}</Text>
         </View>
-        <Text style={[styles.sectionBody, simpleMode && styles.sectionBodySimple]}>{truthText}</Text>
-      </View>
 
-      <View style={[styles.section, styles.ruleSection, simpleMode && styles.ruleSectionSimple]}>
-        <View style={styles.sectionHeader}>
-          <Star color="#FF9500" size={simpleMode ? 24 : 18} fill="#FF9500" />
-          <Text style={[styles.sectionTitle, { color: '#FF9500' }, simpleMode && styles.sectionTitleSimple]}>{ruleTitle}</Text>
+        <View style={[styles.section, styles.ruleSection, simpleMode && styles.ruleSectionSimple]}>
+          <View style={styles.sectionHeader}>
+            <Star color="#FF9500" size={simpleMode ? 24 : 18} fill="#FF9500" />
+            <Text style={[styles.sectionTitle, { color: '#FF9500' }, simpleMode && styles.sectionTitleSimple]}>{ruleTitle}</Text>
+          </View>
+          <Text style={[styles.ruleBody, simpleMode && styles.ruleBodySimple]}>{ruleText}</Text>
         </View>
-        <Text style={[styles.ruleBody, simpleMode && styles.ruleBodySimple]}>{ruleText}</Text>
-      </View>
+      </ScrollView>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   cardContainer: {
-    width: width - 40,
+    flex: 1, // Added for ScrollView
     backgroundColor: '#FFFFFF',
     borderRadius: 20,
     padding: 20,
-    marginHorizontal: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,

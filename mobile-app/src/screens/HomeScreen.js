@@ -4,11 +4,13 @@ import ScreenContainer from '../components/ScreenContainer';
 import { Scan, History, ShieldAlert, Search, ArrowRight, User, Wallet, CreditCard, Smartphone, ShieldCheck, Bell } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSettings } from '../context/SettingsContext';
+import { translations } from '../data/translations';
 
 const { width, height } = Dimensions.get('window');
 
 const HomeScreen = ({ navigation }) => {
-  const { simpleMode } = useSettings();
+  const { simpleMode, language } = useSettings();
+  const t = translations[language] || translations['English'];
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
 
@@ -70,7 +72,7 @@ const HomeScreen = ({ navigation }) => {
       <View style={styles.searchContainer}>
         <View style={styles.searchBar}>
           <Search color="#94A3B8" size={20} />
-          <Text style={styles.searchInput}>Pay anyone on UPI</Text>
+          <Text style={styles.searchInput}>{t.home_payAnyone}</Text>
         </View>
       </View>
 
@@ -88,26 +90,26 @@ const HomeScreen = ({ navigation }) => {
             style={styles.mainCard}
           >
             <View style={styles.cardHeader}>
-              <Text style={styles.cardTitle}>Protection Shield Active</Text>
+              <Text style={styles.cardTitle}>{t.home_protectionActive}</Text>
               <ShieldAlert color="#00E5FF" size={20} />
             </View>
-            <Text style={styles.balanceLabel}>Available Balance</Text>
+            <Text style={styles.balanceLabel}>{t.home_availableBalance}</Text>
             <Text style={styles.balanceAmount}>₹24,850.00</Text>
             
             <View style={styles.cardFooter}>
               <View style={styles.footerItem}>
                 <ShieldCheck color="#00E5FF" size={14} />
-                <Text style={styles.footerText}>AI Secured</Text>
+                <Text style={styles.footerText}>{t.home_aiSecured}</Text>
               </View>
               <View style={[styles.footerItem, { marginLeft: 15 }]}>
-                <Text style={styles.footerText}>Last scan: 2m ago</Text>
+                <Text style={styles.footerText}>{t.home_lastScan}</Text>
               </View>
             </View>
           </LinearGradient>
 
           {!simpleMode && (
             <>
-              <Text style={styles.sectionTitle}>Security Insights</Text>
+              <Text style={styles.sectionTitle}>{t.home_securityInsights}</Text>
               <ScrollView 
                 horizontal={true} 
                 showsHorizontalScrollIndicator={false} 
@@ -116,22 +118,22 @@ const HomeScreen = ({ navigation }) => {
               >
                 <LinearGradient colors={['#FF9966', '#FF5E62']} style={styles.promoBanner}>
                   <View style={styles.bannerInfo}>
-                    <Text style={styles.bannerText}>AI Link Checker</Text>
-                    <Text style={styles.bannerSub}>Scan links before clicking to stay safe.</Text>
+                    <Text style={styles.bannerText}>{t.home_aiLinkChecker}</Text>
+                    <Text style={styles.bannerSub}>{t.home_aiLinkDesc}</Text>
                   </View>
                   <ShieldCheck color="#FFFFFF" size={40} opacity={0.8} />
                 </LinearGradient>
                 <LinearGradient colors={['#00F260', '#0575E6']} style={styles.promoBanner}>
                   <View style={styles.bannerInfo}>
-                    <Text style={styles.bannerText}>Secure Rewards</Text>
-                    <Text style={styles.bannerSub}>Earn cashback on safe transactions.</Text>
+                    <Text style={styles.bannerText}>{t.home_secureRewards}</Text>
+                    <Text style={styles.bannerSub}>{t.home_secureRewardsDesc}</Text>
                   </View>
                   <Smartphone color="#FFFFFF" size={40} opacity={0.8} />
                 </LinearGradient>
                 <LinearGradient colors={['#8E2DE2', '#4A00E0']} style={styles.promoBanner}>
                   <View style={styles.bannerInfo}>
-                    <Text style={styles.bannerText}>24/7 Monitoring</Text>
-                    <Text style={styles.bannerSub}>Real-time protection for your wallet.</Text>
+                    <Text style={styles.bannerText}>{t.home_monitoring}</Text>
+                    <Text style={styles.bannerSub}>{t.home_monitoringDesc}</Text>
                   </View>
                   <ShieldAlert color="#FFFFFF" size={40} opacity={0.8} />
                 </LinearGradient>
@@ -139,35 +141,35 @@ const HomeScreen = ({ navigation }) => {
             </>
           )}
 
-          <Text style={styles.sectionTitle}>Quick Actions</Text>
+          <Text style={styles.sectionTitle}>{t.home_quickActions}</Text>
           <View style={styles.actionGrid}>
             <TouchableOpacity style={styles.actionCard} onPress={() => navigation.navigate('Scanner')}>
               <View style={[styles.actionIcon, { backgroundColor: '#E3F2FD' }]}>
                 <Scan color="#1976D2" size={24} />
               </View>
-              <Text style={styles.actionLabel}>Scan QR</Text>
+              <Text style={styles.actionLabel}>{t.home_scanQr}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.actionCard} onPress={() => navigation.navigate('History')}>
               <View style={[styles.actionIcon, { backgroundColor: '#F3E5F5' }]}>
                 <History color="#7B1FA2" size={24} />
               </View>
-              <Text style={styles.actionLabel}>History</Text>
+              <Text style={styles.actionLabel}>{t.home_history}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.actionCard}>
               <View style={[styles.actionIcon, { backgroundColor: '#E8F5E9' }]}>
                 <Smartphone color="#388E3C" size={24} />
               </View>
-              <Text style={styles.actionLabel}>Recharge</Text>
+              <Text style={styles.actionLabel}>{t.home_recharge}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.actionCard}>
               <View style={[styles.actionIcon, { backgroundColor: '#FFF3E0' }]}>
                 <ShieldAlert color="#F57C00" size={24} />
               </View>
-              <Text style={styles.actionLabel}>Reports</Text>
+              <Text style={styles.actionLabel}>{t.home_reports}</Text>
             </TouchableOpacity>
           </View>
 
-          <Text style={styles.sectionTitle}>People & Contacts</Text>
+          <Text style={styles.sectionTitle}>{t.home_peopleContacts}</Text>
           <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} style={styles.peopleScroll}>
             {people.map((person) => (
               <TouchableOpacity key={person.id} style={styles.personItem} onPress={() => navigation.navigate('PaymentOptions', { person: person.name })}>
@@ -186,9 +188,9 @@ const HomeScreen = ({ navigation }) => {
           </ScrollView>
 
           <View style={styles.txHeader}>
-            <Text style={styles.sectionTitle}>Recent Transactions</Text>
+            <Text style={styles.sectionTitle}>{t.home_recentTransactions}</Text>
             <TouchableOpacity onPress={() => navigation.navigate('History')}>
-              <Text style={styles.seeAll}>See All</Text>
+              <Text style={styles.seeAll}>{t.home_seeAll}</Text>
             </TouchableOpacity>
           </View>
 
@@ -210,47 +212,47 @@ const HomeScreen = ({ navigation }) => {
             </TouchableOpacity>
           ))}
 
-          <Text style={styles.sectionTitle}>Help & Support</Text>
+          <Text style={styles.sectionTitle}>{t.home_helpSupport}</Text>
           <View style={styles.supportGrid}>
             <TouchableOpacity style={styles.supportItem} onPress={() => navigation.navigate('Learn')}>
               <View style={styles.supportIcon}>
                 <ShieldCheck color="#666" size={20} />
               </View>
-              <Text style={styles.supportLabel}>Learn Safety</Text>
+              <Text style={styles.supportLabel}>{t.home_learnSafety}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.supportItem}>
               <View style={styles.supportIcon}>
                 <ShieldAlert color="#666" size={20} />
               </View>
-              <Text style={styles.supportLabel}>Report Fraud</Text>
+              <Text style={styles.supportLabel}>{t.home_reportFraud}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.supportItem}>
               <View style={styles.supportIcon}>
                 <Smartphone color="#666" size={20} />
               </View>
-              <Text style={styles.supportLabel}>Contact Us</Text>
+              <Text style={styles.supportLabel}>{t.home_contactUs}</Text>
             </TouchableOpacity>
           </View>
 
-          <Text style={styles.sectionTitle}>More Options</Text>
+          <Text style={styles.sectionTitle}>{t.home_moreOptions}</Text>
           <TouchableOpacity style={styles.optionItem}>
             <View style={styles.optionContent}>
               <Wallet color="#666" size={20} />
-              <Text style={styles.optionText}>Manage Bank Accounts</Text>
+              <Text style={styles.optionText}>{t.home_manageBank}</Text>
             </View>
             <ArrowRight color="#CCC" size={18} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.optionItem} onPress={() => navigation.navigate('Settings')}>
             <View style={styles.optionContent}>
               <User color="#666" size={20} />
-              <Text style={styles.optionText}>Global Settings</Text>
+              <Text style={styles.optionText}>{t.home_globalSettings}</Text>
             </View>
             <ArrowRight color="#CCC" size={18} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.optionItem}>
             <View style={styles.optionContent}>
               <ShieldCheck color="#666" size={20} />
-              <Text style={styles.optionText}>Privacy Policy</Text>
+              <Text style={styles.optionText}>{t.home_privacyPolicy}</Text>
             </View>
             <ArrowRight color="#CCC" size={18} />
           </TouchableOpacity>
@@ -269,7 +271,7 @@ const HomeScreen = ({ navigation }) => {
           style={styles.fabGradient}
         >
           <Scan color="#FFFFFF" size={28} strokeWidth={2.5} />
-          <Text style={styles.fabText}>SCAN & PAY</Text>
+          <Text style={styles.fabText}>{t.home_scanAndPay}</Text>
         </LinearGradient>
       </TouchableOpacity>
     </ScreenContainer>

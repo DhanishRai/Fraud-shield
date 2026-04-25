@@ -17,21 +17,21 @@ const SettingsScreen = () => {
       <Text style={styles.title}>{t.globalSettings}</Text>
 
       <SettingToggle 
-        label="Simple Safety Mode" 
-        description="Bigger text, simpler words, stronger warnings for elderly & beginners."
+        label={t.simpleModeLabel || 'Simple Safety Mode'} 
+        description={t.simpleModeDesc || 'Bigger text, simpler words, stronger warnings for elderly & beginners.'}
         icon={ShieldAlert}
       />
 
       <View style={styles.settingRow}>
-        <Text style={styles.settingText}>Language</Text>
+        <Text style={styles.settingText}>{t.languageLabel || 'Language'}</Text>
         <LanguageSelector />
       </View>
 
       <View style={styles.infoContainer}>
         <Text style={styles.infoText}>
           {simpleMode 
-            ? 'Simple mode is ON. Interface is simplified for safety.' 
-            : 'Simple mode is OFF. Full interface is active.'}
+            ? (t.simpleModeOnInfo || 'Simple mode is ON. Interface is simplified for safety.') 
+            : (t.simpleModeOffInfo || 'Simple mode is OFF. Full interface is active.')}
         </Text>
       </View>
     </View>

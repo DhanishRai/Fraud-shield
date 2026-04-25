@@ -5,7 +5,7 @@ import axios from 'axios';
 // For physical device: use your computer's local IP (e.g., 192.168.1.100)
 // For iOS simulator: localhost works
 // Using local IPv4 address directly since tunnels crash
-const API_BASE_URL = 'http://10.201.109.60:3000/api';
+const API_BASE_URL = 'http://10.10.10.176:3000/api';
 
 /**
  * Sends parsed QR code data to the Node.js backend for AI risk analysis.

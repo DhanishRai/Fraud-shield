@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Dimensions } from 'react-native';
 import { ArrowLeft, BookOpen } from 'lucide-react-native';
 import { translations } from '../data/translations';
-import LessonCard from '../components/LessonCard';
+import LessonCarousel from '../components/LessonCarousel';
 import LanguageSelector from '../components/LanguageSelector';
 import SettingToggle from '../components/SettingToggle';
 import { useSettings } from '../context/SettingsContext';
@@ -15,41 +15,7 @@ const LearnScreen = ({ route, navigation }) => {
   
   const initialIndex = route.params?.initialLessonIndex || 0;
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
-  const flatListRef = useRef(null);
-
-  const onViewRef = useRef(({ viewableItems }) => {
-    if (viewableItems.length > 0) {
-      setCurrentIndex(viewableItems[0].index);
-    }
-  });
-
   const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50 });
-
-  React.useEffect(() => {
-    if (initialIndex > 0 && initialIndex < t.lessons.length) {
-      setTimeout(() => {
-        if (flatListRef.current) {
-          flatListRef.current.scrollToIndex({ index: initialIndex, animated: false });
-        }
-      }, 100);
-    }
-  }, [initialIndex]);
-
-  const renderPagination = () => {
-    return (
-      <View style={styles.paginationContainer}>
-        {t.lessons.map((_, index) => (
-          <View
-            key={index}
-            style={[
-              styles.dot,
-              currentIndex === index ? styles.activeDot : styles.inactiveDot
-            ]}
-          />
-        ))}
-      </View>
-    );
-  };
 
   return (
     <View style={styles.container}>
@@ -78,23 +44,12 @@ const LearnScreen = ({ route, navigation }) => {
         </Text>
 
         <View style={styles.listContainer}>
-          <FlatList
-            ref={flatListRef}
-            data={t.lessons}
-            renderItem={({ item }) => <LessonCard lesson={item} t={t} />}
-            keyExtractor={(item) => item.id}
-            horizontal
-            pagingEnabled
-            showsHorizontalScrollIndicator={false}
-            onViewableItemsChanged={onViewRef.current}
-            viewabilityConfig={viewConfigRef.current}
-            contentContainerStyle={styles.flatListContent}
-            snapToAlignment="center"
-            decelerationRate="fast"
+          <LessonCarousel 
+            lessons={t.lessons} 
+            t={t} 
+            onIndexChange={setCurrentIndex} 
           />
         </View>
-
-        {renderPagination()}
       </View>
     </View>
   );
@@ -148,29 +103,7 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   listContainer: {
-    height: 500, // Adjusted to fit the LessonCard
-  },
-  flatListContent: {
-    paddingHorizontal: 10,
-  },
-  paginationContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginHorizontal: 4,
-  },
-  activeDot: {
-    backgroundColor: '#0066FF',
-    width: 16,
-  },
-  inactiveDot: {
-    backgroundColor: '#CBD5E1',
+    flex: 1, // Adjusted to fit the LessonCard dynamically
   },
 });
 
