@@ -212,11 +212,11 @@ const HomeScreen = ({ navigation }) => {
 
           <Text style={styles.sectionTitle}>Help & Support</Text>
           <View style={styles.supportGrid}>
-            <TouchableOpacity style={styles.supportItem}>
+            <TouchableOpacity style={styles.supportItem} onPress={() => navigation.navigate('Learn')}>
               <View style={styles.supportIcon}>
                 <ShieldCheck color="#666" size={20} />
               </View>
-              <Text style={styles.supportLabel}>Security Center</Text>
+              <Text style={styles.supportLabel}>Learn Safety</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.supportItem}>
               <View style={styles.supportIcon}>
