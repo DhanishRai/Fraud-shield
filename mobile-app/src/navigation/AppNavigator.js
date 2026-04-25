@@ -13,6 +13,7 @@ import HistoryScreen from '../screens/HistoryScreen';
 import OnboardingScreen from '../screens/OnboardingScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import LearnScreen from '../screens/LearnScreen';
+import ChatbotScreen from '../screens/ChatbotScreen';
 
 const Stack = createStackNavigator();
 
@@ -37,6 +38,7 @@ const AppNavigator = () => {
       <Stack.Screen name="History" component={HistoryScreen} />
       <Stack.Screen name="Settings" component={SettingsScreen} />
       <Stack.Screen name="Learn" component={LearnScreen} />
+      <Stack.Screen name="Chatbot" component={ChatbotScreen} />
     </Stack.Navigator>
   );
 };

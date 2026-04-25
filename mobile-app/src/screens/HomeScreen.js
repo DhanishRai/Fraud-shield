@@ -259,6 +259,13 @@ const HomeScreen = ({ navigation }) => {
             </View>
             <ArrowRight color="#CCC" size={18} />
           </TouchableOpacity>
+          <TouchableOpacity style={styles.optionItem} onPress={() => navigation.navigate('Chatbot')}>
+            <View style={styles.optionContent}>
+              <ShieldCheck color="#666" size={20} />
+              <Text style={styles.optionText}>Ask Before You Pay</Text>
+            </View>
+            <ArrowRight color="#CCC" size={18} />
+          </TouchableOpacity>
 
         </Animated.View>
         <View style={{ height: 120 }} />
