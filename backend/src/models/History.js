@@ -27,7 +27,8 @@ const historySchema = new mongoose.Schema({
     required: true
   },
   reason: {
-    type: String
+    type: [String],
+    default: []
   },
   scannedAt: {
     type: Date,
