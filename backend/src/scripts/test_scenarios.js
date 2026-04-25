@@ -61,7 +61,12 @@ const runTests = async () => {
 
     console.log('🎉 --- All Scenarios Executed Successfully ---');
   } catch (error) {
-    console.error('❌ Test execution failed:', error.response ? error.response.data : error.message);
+    if (error.response) {
+      console.error('❌ Test execution failed with status:', error.response.status);
+      console.error('Data:', error.response.data);
+    } else {
+      console.error('❌ Test execution failed with message:', error.message);
+    }
   }
 };
 
