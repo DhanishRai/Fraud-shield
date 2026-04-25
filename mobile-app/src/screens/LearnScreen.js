@@ -1,21 +1,30 @@
-import React, { useState, useRef } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Dimensions } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { ArrowLeft, BookOpen } from 'lucide-react-native';
 import { translations } from '../data/translations';
+import { lessons as baseLessons } from '../data/lessons';
 import LessonCarousel from '../components/LessonCarousel';
 import LanguageSelector from '../components/LanguageSelector';
 import SettingToggle from '../components/SettingToggle';
 import { useSettings } from '../context/SettingsContext';
 
-const { width } = Dimensions.get('window');
-
 const LearnScreen = ({ route, navigation }) => {
   const { language } = useSettings();
   const t = translations[language] || translations['English'];
+  const rawInitialIndex = route.params?.initialLessonIndex || 0;
   
-  const initialIndex = route.params?.initialLessonIndex || 0;
+  const lessons = useMemo(() => {
+    const translatedLessons = t.lessons || [];
+    return baseLessons.map((lesson, index) => ({
+      ...lesson,
+      ...(translatedLessons[index] || {}),
+      id: lesson.id,
+      icon: lesson.icon,
+    }));
+  }, [t.lessons]);
+  const initialIndex = Math.max(0, Math.min(rawInitialIndex, lessons.length - 1));
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
-  const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50 });
+  const progressLabel = lessons.length > 0 ? `${currentIndex + 1}/${lessons.length}` : '0/0';
 
   return (
     <View style={styles.container}>
@@ -38,16 +47,17 @@ const LearnScreen = ({ route, navigation }) => {
       </View>
 
       <View style={styles.content}>
-        <Text style={styles.subtitle}>{t.microLessons} ({currentIndex + 1}/{t.lessons.length})</Text>
+        <Text style={styles.subtitle}>{t.microLessons} ({progressLabel})</Text>
         <Text style={styles.description}>
           {t.swipeToLearn}
         </Text>
 
         <View style={styles.listContainer}>
           <LessonCarousel 
-            lessons={t.lessons} 
+            lessons={lessons}
             t={t} 
-            onIndexChange={setCurrentIndex} 
+            onIndexChange={setCurrentIndex}
+            initialIndex={initialIndex}
           />
         </View>
       </View>

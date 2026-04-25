@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Dimensions, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { 
   MessageSquare, 
   QrCode, 
@@ -14,8 +14,6 @@ import {
   Star
 } from 'lucide-react-native';
 import { useSettings } from '../context/SettingsContext';
-
-const { width } = Dimensions.get('window');
 
 const IconMap = {
   MessageSquare,
@@ -44,7 +42,15 @@ const LessonCard = ({ lesson, t }) => {
 
   return (
     <View style={[styles.cardContainer, simpleMode && styles.cardContainerSimple]}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 20 }}>
+      <ScrollView
+        style={styles.scrollView}
+        scrollEnabled
+        nestedScrollEnabled
+        overScrollMode="always"
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
         <View style={styles.cardHeader}>
           <View style={[styles.iconContainer, simpleMode && { width: 60, height: 60, borderRadius: 30 }]}>
             <IconComponent color="#0066FF" size={simpleMode ? 36 : 28} />
@@ -84,7 +90,7 @@ const LessonCard = ({ lesson, t }) => {
 
 const styles = StyleSheet.create({
   cardContainer: {
-    flex: 1, // Added for ScrollView
+    flex: 1,
     backgroundColor: '#FFFFFF',
     borderRadius: 20,
     padding: 20,
@@ -95,6 +101,13 @@ const styles = StyleSheet.create({
     elevation: 5,
     borderWidth: 1,
     borderColor: '#F1F5F9',
+    overflow: 'hidden',
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 20,
   },
   cardHeader: {
     flexDirection: 'row',
