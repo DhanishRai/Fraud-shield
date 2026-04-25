@@ -87,11 +87,16 @@ export const loginUser = async (data) => {
       phone: data.phone,
       name: data.name || 'User',
     }, {
-      timeout: 5000,
+      timeout: 10000,
     });
     return response.data;
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('Detailed Login Error:', {
+      message: error.message,
+      code: error.code,
+      config: error.config?.url,
+      response: error.response?.data
+    });
     throw new Error('Login failed. Please try again.');
   }
 };

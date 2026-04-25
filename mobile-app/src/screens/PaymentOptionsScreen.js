@@ -3,26 +3,33 @@ import { View, Text, StyleSheet, TouchableOpacity, Image, Alert } from 'react-na
 import ScreenContainer from '../components/ScreenContainer';
 import Header from '../components/Header';
 import { ChevronRight } from 'lucide-react-native';
-import { initiateUpiPayment } from '../services/deepLink';
+import * as IntentLauncher from 'expo-intent-launcher';
+
 
 const PaymentOptionsScreen = ({ route, navigation }) => {
   const { paymentData } = route.params || {};
 
   const options = [
-    { id: 'gpay', name: 'Google Pay', icon: '🔵' },
-    { id: 'phonepe', name: 'PhonePe', icon: '🟣' },
-    { id: 'paytm', name: 'Paytm', icon: '🔹' },
+    { id: 'gpay', name: 'Google Pay', icon: '🔵', packageId: 'com.google.android.apps.nbu.paisa.user' },
+    { id: 'phonepe', name: 'PhonePe', icon: '🟣', packageId: 'com.phonepe.app' },
+    { id: 'paytm', name: 'Paytm', icon: '🔹', packageId: 'net.one97.paytm' },
   ];
 
   const handlePayment = async (option) => {
-    if (!paymentData) {
-      Alert.alert('Error', 'Payment data is missing.');
-      return;
-    }
+    try {
+      // Use specific app protocols to force the direct opening of the selected app
+      // This bypasses the generic "app selector" list
+      const appData = option.id === 'gpay' ? 'tez://upi/pay' : 
+                      option.id === 'phonepe' ? 'phonepe://pay' : 
+                      'paytmmp://pay';
 
-    // In a real scenario, you might want to specify the app (GPay vs PhonePe)
-    // but the UPI standard usually opens the system chooser.
-    await initiateUpiPayment(paymentData);
+      await IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
+        packageName: option.packageId,
+        data: appData
+      });
+    } catch (error) {
+      Alert.alert('App Not Found', `Please make sure ${option.name} is installed.`);
+    }
   };
 
   return (
