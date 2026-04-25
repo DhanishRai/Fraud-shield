@@ -11,6 +11,7 @@ import PaymentOptionsScreen from '../screens/PaymentOptionsScreen';
 import ReportScamScreen from '../screens/ReportScamScreen';
 import HistoryScreen from '../screens/HistoryScreen';
 import OnboardingScreen from '../screens/OnboardingScreen';
+import SettingsScreen from '../screens/SettingsScreen';
 
 const Stack = createStackNavigator();
 
@@ -33,6 +34,7 @@ const AppNavigator = () => {
       <Stack.Screen name="PaymentOptions" component={PaymentOptionsScreen} />
       <Stack.Screen name="ReportScam" component={ReportScamScreen} />
       <Stack.Screen name="History" component={HistoryScreen} />
+      <Stack.Screen name="Settings" component={SettingsScreen} />
     </Stack.Navigator>
   );
 };

@@ -3,10 +3,12 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions, Anima
 import ScreenContainer from '../components/ScreenContainer';
 import { Scan, History, ShieldAlert, Search, ArrowRight, User, Wallet, CreditCard, Smartphone, ShieldCheck, Bell } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useSettings } from '../context/SettingsContext';
 
 const { width, height } = Dimensions.get('window');
 
 const HomeScreen = ({ navigation }) => {
+  const { simpleMode } = useSettings();
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
 
@@ -103,35 +105,39 @@ const HomeScreen = ({ navigation }) => {
             </View>
           </LinearGradient>
 
-          <Text style={styles.sectionTitle}>Security Insights</Text>
-          <ScrollView 
-            horizontal={true} 
-            showsHorizontalScrollIndicator={false} 
-            pagingEnabled={true}
-            style={styles.bannerCarousel}
-          >
-            <LinearGradient colors={['#FF9966', '#FF5E62']} style={styles.promoBanner}>
-              <View style={styles.bannerInfo}>
-                <Text style={styles.bannerText}>AI Link Checker</Text>
-                <Text style={styles.bannerSub}>Scan links before clicking to stay safe.</Text>
-              </View>
-              <ShieldCheck color="#FFFFFF" size={40} opacity={0.8} />
-            </LinearGradient>
-            <LinearGradient colors={['#00F260', '#0575E6']} style={styles.promoBanner}>
-              <View style={styles.bannerInfo}>
-                <Text style={styles.bannerText}>Secure Rewards</Text>
-                <Text style={styles.bannerSub}>Earn cashback on safe transactions.</Text>
-              </View>
-              <Smartphone color="#FFFFFF" size={40} opacity={0.8} />
-            </LinearGradient>
-            <LinearGradient colors={['#8E2DE2', '#4A00E0']} style={styles.promoBanner}>
-              <View style={styles.bannerInfo}>
-                <Text style={styles.bannerText}>24/7 Monitoring</Text>
-                <Text style={styles.bannerSub}>Real-time protection for your wallet.</Text>
-              </View>
-              <ShieldAlert color="#FFFFFF" size={40} opacity={0.8} />
-            </LinearGradient>
-          </ScrollView>
+          {!simpleMode && (
+            <>
+              <Text style={styles.sectionTitle}>Security Insights</Text>
+              <ScrollView 
+                horizontal={true} 
+                showsHorizontalScrollIndicator={false} 
+                pagingEnabled={true}
+                style={styles.bannerCarousel}
+              >
+                <LinearGradient colors={['#FF9966', '#FF5E62']} style={styles.promoBanner}>
+                  <View style={styles.bannerInfo}>
+                    <Text style={styles.bannerText}>AI Link Checker</Text>
+                    <Text style={styles.bannerSub}>Scan links before clicking to stay safe.</Text>
+                  </View>
+                  <ShieldCheck color="#FFFFFF" size={40} opacity={0.8} />
+                </LinearGradient>
+                <LinearGradient colors={['#00F260', '#0575E6']} style={styles.promoBanner}>
+                  <View style={styles.bannerInfo}>
+                    <Text style={styles.bannerText}>Secure Rewards</Text>
+                    <Text style={styles.bannerSub}>Earn cashback on safe transactions.</Text>
+                  </View>
+                  <Smartphone color="#FFFFFF" size={40} opacity={0.8} />
+                </LinearGradient>
+                <LinearGradient colors={['#8E2DE2', '#4A00E0']} style={styles.promoBanner}>
+                  <View style={styles.bannerInfo}>
+                    <Text style={styles.bannerText}>24/7 Monitoring</Text>
+                    <Text style={styles.bannerSub}>Real-time protection for your wallet.</Text>
+                  </View>
+                  <ShieldAlert color="#FFFFFF" size={40} opacity={0.8} />
+                </LinearGradient>
+              </ScrollView>
+            </>
+          )}
 
           <Text style={styles.sectionTitle}>Quick Actions</Text>
           <View style={styles.actionGrid}>
@@ -234,10 +240,10 @@ const HomeScreen = ({ navigation }) => {
             </View>
             <ArrowRight color="#CCC" size={18} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.optionItem}>
+          <TouchableOpacity style={styles.optionItem} onPress={() => navigation.navigate('Settings')}>
             <View style={styles.optionContent}>
               <User color="#666" size={20} />
-              <Text style={styles.optionText}>Profile Settings</Text>
+              <Text style={styles.optionText}>Global Settings</Text>
             </View>
             <ArrowRight color="#CCC" size={18} />
           </TouchableOpacity>
