@@ -84,9 +84,12 @@ const ResultScreen = ({ route, navigation }) => {
 
   if (!analysis) return null;
 
-  const { risk_score, status, reasons, confidence } = analysis;
-  const isSafe = status === 'SAFE';
-  const isHighRisk = status === 'HIGH_RISK';
+  const { risk_score, status, reasons, confidence, risk_type, riskType } = analysis;
+  const normalizedStatus = String(status || '').toUpperCase();
+  const isSafe = normalizedStatus === 'SAFE' || normalizedStatus === 'LOW';
+  const isHighRisk = normalizedStatus === 'HIGH_RISK' || normalizedStatus === 'HIGH RISK' || normalizedStatus === 'HIGH';
+  const isSuspicious = normalizedStatus === 'SUSPICIOUS' || normalizedStatus === 'MEDIUM';
+  const shouldShowEducationCTA = isHighRisk || isSuspicious;
   
   const getStatusColor = () => {
     if (isSafe) return '#00C853';
@@ -101,22 +104,32 @@ const ResultScreen = ({ route, navigation }) => {
   };
 
   const getRelatedLessonIndex = () => {
-    if (!reasons || reasons.length === 0) return 0;
-    const combinedReasons = reasons.join(' ').toLowerCase();
-    
-    if (combinedReasons.includes('qr')) return 1; // QR scam
-    if (combinedReasons.includes('merchant') || combinedReasons.includes('verif')) return 7; // Verify merchant
-    if (combinedReasons.includes('link') || combinedReasons.includes('url')) return 4; // Phishing
-    if (combinedReasons.includes('pin')) return 2; // UPI PIN
-    if (combinedReasons.includes('otp')) return 0; // OTP scam
-    if (combinedReasons.includes('kyc')) return 6; // KYC scam
-    if (combinedReasons.includes('customer care')) return 3; // Fake customer care
-    
-    return 0; // Default lesson
+    const combinedSignals = [
+      risk_type,
+      riskType,
+      ...(reasons || []),
+      parsedData?.upiId,
+      parsedData?.name,
+      scanData,
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase();
+
+    // Contextual education mapping: risk warning -> specific micro lesson
+    if (combinedSignals.includes('qr scam') || combinedSignals.includes('qr fraud') || combinedSignals.includes('qr')) return 1;
+    if (combinedSignals.includes('fake merchant') || combinedSignals.includes('merchant mismatch') || combinedSignals.includes('merchant') || combinedSignals.includes('verif')) return 7;
+    if (combinedSignals.includes('phishing') || combinedSignals.includes('link') || combinedSignals.includes('url')) return 4;
+    if (combinedSignals.includes('pin') || combinedSignals.includes('upi pin')) return 2;
+    if (combinedSignals.includes('otp')) return 0;
+    if (combinedSignals.includes('kyc')) return 6;
+    if (combinedSignals.includes('customer care')) return 3;
+
+    return 0;
   };
 
   const navigateToEducation = () => {
-    navigation.navigate('LearnScreen', { initialLessonIndex: getRelatedLessonIndex() });
+    navigation.navigate('Learn', { initialLessonIndex: getRelatedLessonIndex() });
   };
 
   const getStatusIcon = () => {
@@ -181,12 +194,14 @@ const ResultScreen = ({ route, navigation }) => {
                   })} 
                   style={{ backgroundColor: '#FF1744', marginBottom: 15 }}
                 />
-                <SecondaryButton 
-                  title="Learn Why This Is Risky" 
-                  onPress={navigateToEducation} 
-                  style={{ borderColor: '#0066FF', marginBottom: 15 }}
-                  textStyle={{ color: '#0066FF' }}
-                />
+                {shouldShowEducationCTA && (
+                  <SecondaryButton 
+                    title="Learn Why This Is Risky" 
+                    onPress={navigateToEducation} 
+                    style={{ borderColor: '#0066FF', marginBottom: 15 }}
+                    textStyle={{ color: '#0066FF' }}
+                  />
+                )}
                 <SecondaryButton 
                   title={simpleMode ? "GO BACK" : "Cancel Payment"}
                   onPress={() => navigation.navigate('Home')} 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions, Animated, Image, Platform } from 'react-native';
 import ScreenContainer from '../components/ScreenContainer';
+import FraudMessageChecker from '../components/FraudMessageChecker';
 import { Scan, History, ShieldAlert, Search, ArrowRight, User, Wallet, CreditCard, Smartphone, ShieldCheck, Bell } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSettings } from '../context/SettingsContext';
@@ -211,6 +212,8 @@ const HomeScreen = ({ navigation }) => {
               </Text>
             </TouchableOpacity>
           ))}
+
+          <FraudMessageChecker />
 
           <Text style={styles.sectionTitle}>{t.home_helpSupport}</Text>
           <View style={styles.supportGrid}>
