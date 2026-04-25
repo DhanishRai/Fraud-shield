@@ -4,25 +4,31 @@ import ScreenContainer from '../components/ScreenContainer';
 import Header from '../components/Header';
 import InputField from '../components/InputField';
 import PrimaryButton from '../components/PrimaryButton';
-import { Image as ImageIcon, Upload } from 'lucide-react-native';
+import { Upload } from 'lucide-react-native';
+import { reportScam } from '../services/api';
 
-const ReportScamScreen = ({ navigation }) => {
-  const [upiId, setUpiId] = useState('');
+const ReportScamScreen = ({ route, navigation }) => {
+  const prefillUpiId = route.params?.upiId || '';
+  const [upiId, setUpiId] = useState(prefillUpiId);
   const [reason, setReason] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!upiId || !reason) {
       Alert.alert('Error', 'Please fill all fields');
       return;
     }
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      await reportScam({ upiId, reason });
       Alert.alert('Report Submitted', 'Thank you for helping keep the community safe!', [
         { text: 'OK', onPress: () => navigation.navigate('Home') }
       ]);
-    }, 2000);
+    } catch (error) {
+      Alert.alert('Error', error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

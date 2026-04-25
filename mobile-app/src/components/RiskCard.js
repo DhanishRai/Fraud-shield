@@ -4,9 +4,10 @@ import StatusBadge from './StatusBadge';
 
 const RiskCard = ({ score, status, reasons }) => {
   const getScoreColor = () => {
-    if (status === 'Safe') return '#00C853';
-    if (status === 'Medium') return '#FFB800';
-    return '#FF1744';
+    const s = (status || '').toUpperCase();
+    if (s === 'SAFE') return '#00C853';
+    if (s === 'SUSPICIOUS' || s === 'MEDIUM') return '#FF9100';
+    return '#FF1744'; // HIGH_RISK / HIGH RISK / Risk
   };
 
   return (

@@ -24,22 +24,25 @@ const ResultScreen = ({ route, navigation }) => {
     const performAnalysis = async () => {
       try {
         if (parsedData) {
-          // Actual API call
+          // Actual API call to Node.js backend → Flask AI
           const result = await analyzeQR(parsedData);
           setAnalysis(result);
         } else {
-          // Fallback to mock data if no parsed data (for direct navigation testing)
+          // Fallback mock for direct navigation / history viewing
           setTimeout(() => {
             setAnalysis({
               risk_score: 12,
-              status: 'Safe',
-              reasons: ["Verified merchant profile", "Safe transaction history", "SSL Encryption active"]
+              status: 'SAFE',
+              confidence: 0.85,
+              reasons: ["Verified merchant profile", "Safe transaction history"]
             });
           }, 1000);
         }
       } catch (error) {
-        Alert.alert('Analysis Error', error.message);
-        navigation.goBack();
+        Alert.alert('Analysis Error', error.message, [
+          { text: 'Go Back', onPress: () => navigation.goBack() }
+        ]);
+        return;
       } finally {
         setLoading(false);
         startAnimations();
@@ -68,18 +71,37 @@ const ResultScreen = ({ route, navigation }) => {
   if (loading) {
     return (
       <ScreenContainer style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0066FF" />
-        <Text style={styles.loadingText}>Running AI Threat Analysis...</Text>
+        <View style={styles.loadingBox}>
+          <ActivityIndicator size="large" color="#0066FF" />
+          <Text style={styles.loadingTitle}>Analyzing AI Risk...</Text>
+          <Text style={styles.loadingSubtitle}>Scanning merchant database</Text>
+        </View>
       </ScreenContainer>
     );
   }
 
-  const { risk_score, status, reasons } = analysis;
-  const isSuspicious = status !== 'Safe';
+  if (!analysis) return null;
+
+  const { risk_score, status, reasons, confidence } = analysis;
+  const isSafe = status === 'SAFE';
+  const isHighRisk = status === 'HIGH_RISK';
   
   const getStatusColor = () => {
-    if (status === 'Safe') return '#00C853';
-    return '#FF1744';
+    if (isSafe) return '#00C853';
+    if (isHighRisk) return '#FF1744';
+    return '#FF9100'; // SUSPICIOUS = orange
+  };
+
+  const getStatusLabel = () => {
+    if (isSafe) return 'SAFE';
+    if (isHighRisk) return 'HIGH RISK';
+    return 'SUSPICIOUS';
+  };
+
+  const getStatusIcon = () => {
+    if (isSafe) return <ShieldCheck color="#00C853" size={40} />;
+    if (isHighRisk) return <ShieldAlert color="#FF1744" size={40} />;
+    return <AlertTriangle color="#FF9100" size={40} />;
   };
 
   return (
@@ -99,11 +121,7 @@ const ResultScreen = ({ route, navigation }) => {
                colors={['#FFFFFF', '#F8FAFF']}
                style={styles.circleInner}
              >
-                {isSuspicious ? (
-                  <AlertTriangle color="#FF1744" size={40} />
-                ) : (
-                  <ShieldCheck color="#00C853" size={40} />
-                )}
+                {getStatusIcon()}
                 <Text style={[styles.scoreText, { color: getStatusColor() }]}>{risk_score}%</Text>
                 <Text style={styles.scoreLabel}>Risk Level</Text>
              </LinearGradient>
@@ -113,22 +131,33 @@ const ResultScreen = ({ route, navigation }) => {
         <Animated.View style={{ opacity: opacityAnim, transform: [{ translateY: ringAnim.interpolate({ inputRange: [0, 1], outputRange: [20, 0] }) }] }}>
           <View style={styles.statusBadgeContainer}>
             <View style={[styles.statusBadge, { backgroundColor: getStatusColor() + '15', borderColor: getStatusColor() }]}>
-               <Text style={[styles.statusText, { color: getStatusColor() }]}>{status.toUpperCase()}</Text>
+               <Text style={[styles.statusText, { color: getStatusColor() }]}>{getStatusLabel()}</Text>
             </View>
           </View>
 
+          {confidence > 0 && (
+            <Text style={styles.confidenceText}>AI Confidence: {Math.round(confidence * 100)}%</Text>
+          )}
+
           <RiskCard 
             score={risk_score} 
-            status={status} 
-            reasons={reasons}
+            status={getStatusLabel()} 
+            reasons={reasons || []}
           />
 
           <View style={styles.actionContainer}>
-            {isSuspicious ? (
+            {isSafe ? (
+              <PrimaryButton 
+                title="Proceed to Pay" 
+                onPress={() => navigation.navigate('PaymentOptions', { paymentData: parsedData })} 
+              />
+            ) : (
               <>
                 <PrimaryButton 
                   title="Report this Scam" 
-                  onPress={() => navigation.navigate('ReportScam')} 
+                  onPress={() => navigation.navigate('ReportScam', { 
+                    upiId: parsedData?.upiId 
+                  })} 
                   style={{ backgroundColor: '#FF1744' }}
                 />
                 <SecondaryButton 
@@ -136,11 +165,6 @@ const ResultScreen = ({ route, navigation }) => {
                   onPress={() => navigation.navigate('Home')} 
                 />
               </>
-            ) : (
-              <PrimaryButton 
-                title="Proceed to Pay" 
-                onPress={() => navigation.navigate('PaymentOptions', { paymentData: parsedData })} 
-              />
             )}
           </View>
         </Animated.View>
@@ -154,11 +178,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  loadingText: {
+  loadingBox: {
+    alignItems: 'center',
+  },
+  loadingTitle: {
     marginTop: 20,
-    fontSize: 16,
+    fontSize: 18,
     color: '#0066FF',
-    fontWeight: '600',
+    fontWeight: '700',
+  },
+  loadingSubtitle: {
+    marginTop: 8,
+    fontSize: 13,
+    color: '#94A3B8',
+    fontWeight: '500',
   },
   scrollContent: {
     padding: 24,
@@ -211,7 +244,7 @@ const styles = StyleSheet.create({
   },
   statusBadgeContainer: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 10,
   },
   statusBadge: {
     paddingHorizontal: 20,
@@ -223,6 +256,13 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     fontSize: 14,
     letterSpacing: 1,
+  },
+  confidenceText: {
+    textAlign: 'center',
+    fontSize: 13,
+    color: '#64748B',
+    fontWeight: '600',
+    marginBottom: 15,
   },
   actionContainer: {
     width: width - 48,

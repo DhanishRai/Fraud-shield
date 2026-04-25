@@ -3,16 +3,20 @@ const { FLASK_SERVICE_URL } = require('../config/env');
 
 /**
  * Service to communicate with the Flask AI Microservice
+ * Maps Node.js field names to Flask's expected snake_case format.
  * @param {Object} scanData 
  * @param {number} retries - Number of retry attempts
  * @param {number} timeout - Request timeout in milliseconds
  */
 const analyzeScan = async (scanData, retries = 3, timeout = 5000) => {
+  // Map from Node.js camelCase to Flask snake_case
   const payload = {
-    upiId: scanData.upiId,
-    merchantName: scanData.merchantName,
-    amount: scanData.amount,
-    reportsCount: scanData.reportsCount || 0
+    upi_id: scanData.upiId,
+    merchant_name: scanData.merchantName || 'Unknown',
+    amount: parseFloat(scanData.amount) || 0,
+    report_count: scanData.reportsCount || 0,
+    is_new_payee: scanData.isNewPayee !== undefined ? scanData.isNewPayee : true,
+    hour: scanData.hour || new Date().getHours(),
   };
 
   for (let attempt = 1; attempt <= retries; attempt++) {
@@ -23,7 +27,16 @@ const analyzeScan = async (scanData, retries = 3, timeout = 5000) => {
           'Content-Type': 'application/json'
         }
       });
-      return response.data;
+
+      // Map Flask response back to Node.js format
+      const flaskResult = response.data;
+      return {
+        risk_score: flaskResult.risk_score,
+        status: flaskResult.status,
+        confidence: flaskResult.confidence,
+        reasons: flaskResult.reasons || [],
+        response_time_ms: flaskResult.response_time_ms,
+      };
     } catch (error) {
       const isLastAttempt = attempt === retries;
       
@@ -31,8 +44,7 @@ const analyzeScan = async (scanData, retries = 3, timeout = 5000) => {
       
       if (isLastAttempt) {
         console.error('All retries exhausted for Flask AI service.');
-        // If it completely fails, we can either throw or return a safe default
-        throw new Error('Could not analyze the scan risk after multiple attempts');
+        throw new Error('AI engine unavailable. Please try again later.');
       }
 
       // Exponential backoff delay: 500ms, 1000ms...

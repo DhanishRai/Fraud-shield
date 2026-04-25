@@ -16,8 +16,13 @@ const app = express();
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
-app.use(morgan('dev')); // Use morgan for logging
-app.use(logger); // Custom logger
+app.use(morgan('dev'));
+app.use(logger);
+
+// Health Check
+app.get('/health', (req, res) => {
+  res.json({ status: 'healthy', service: 'fraud-shield-backend' });
+});
 
 // Routes
 app.use('/api/auth', authRoutes);

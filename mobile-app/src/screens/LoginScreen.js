@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform, Dimensions, Animated, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform, Dimensions, Animated, Image, Alert } from 'react-native';
 import ScreenContainer from '../components/ScreenContainer';
 import InputField from '../components/InputField';
 import PrimaryButton from '../components/PrimaryButton';
 import { ShieldCheck, Mail, Phone, ChevronRight } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { loginUser } from '../services/api';
 
 const { width, height } = Dimensions.get('window');
 
@@ -25,12 +26,24 @@ const LoginScreen = ({ navigation }) => {
     }).start();
   }, []);
 
-  const handleAuth = () => {
+  const handleAuth = async () => {
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      const credential = useEmail ? email : mobile;
+      if (!credential) {
+        Alert.alert('Error', useEmail ? 'Please enter your email' : 'Please enter your mobile number');
+        setLoading(false);
+        return;
+      }
+      await loginUser({ phone: useEmail ? email : mobile, name: 'User' });
       navigation.replace('Home');
-    }, 1500);
+    } catch (error) {
+      // Fallback: proceed to Home even if backend is down (hackathon demo)
+      console.log('Login API failed, proceeding in demo mode:', error.message);
+      navigation.replace('Home');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

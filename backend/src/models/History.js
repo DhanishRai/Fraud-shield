@@ -2,16 +2,16 @@ const mongoose = require('mongoose');
 
 const historySchema = new mongoose.Schema({
   userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    required: true,
-    ref: 'User'
+    type: String,
+    required: true
   },
   upiId: {
     type: String,
     required: true
   },
   merchantName: {
-    type: String
+    type: String,
+    default: 'Unknown Merchant'
   },
   amount: {
     type: Number,
@@ -23,12 +23,16 @@ const historySchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['SAFE', 'SUSPICIOUS', 'HIGH RISK'],
+    enum: ['SAFE', 'SUSPICIOUS', 'HIGH_RISK'],
     required: true
   },
   reason: {
     type: [String],
     default: []
+  },
+  confidence: {
+    type: Number,
+    default: 0
   },
   scannedAt: {
     type: Date,
