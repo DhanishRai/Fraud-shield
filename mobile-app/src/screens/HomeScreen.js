@@ -86,27 +86,7 @@ const HomeScreen = ({ navigation }) => {
           scrollEnabled={true}
         >
         <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
-          <LinearGradient
-            colors={['#1A237E', '#0D47A1']}
-            style={styles.mainCard}
-          >
-            <View style={styles.cardHeader}>
-              <Text style={styles.cardTitle}>{t.home_protectionActive}</Text>
-              <ShieldAlert color="#00E5FF" size={20} />
-            </View>
-            <Text style={styles.balanceLabel}>{t.home_availableBalance}</Text>
-            <Text style={styles.balanceAmount}>₹24,850.00</Text>
-            
-            <View style={styles.cardFooter}>
-              <View style={styles.footerItem}>
-                <ShieldCheck color="#00E5FF" size={14} />
-                <Text style={styles.footerText}>{t.home_aiSecured}</Text>
-              </View>
-              <View style={[styles.footerItem, { marginLeft: 15 }]}>
-                <Text style={styles.footerText}>{t.home_lastScan}</Text>
-              </View>
-            </View>
-          </LinearGradient>
+
 
           {!simpleMode && (
             <>
@@ -354,57 +334,7 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingBottom: 100,
   },
-  mainCard: {
-    borderRadius: 30,
-    padding: 25,
-    marginBottom: 20,
-    shadowColor: '#1A237E',
-    shadowOffset: { width: 0, height: 15 },
-    shadowOpacity: 0.2,
-    shadowRadius: 20,
-    elevation: 10,
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 15,
-  },
-  cardTitle: {
-    color: '#00E5FF',
-    fontSize: 12,
-    fontWeight: '800',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-  },
-  balanceLabel: {
-    color: 'rgba(255, 255, 255, 0.7)',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  balanceAmount: {
-    color: '#FFFFFF',
-    fontSize: 32,
-    fontWeight: '800',
-    marginTop: 5,
-  },
-  cardFooter: {
-    flexDirection: 'row',
-    marginTop: 20,
-    paddingTop: 15,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  footerItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  footerText: {
-    color: 'rgba(255, 255, 255, 0.6)',
-    fontSize: 11,
-    fontWeight: '600',
-    marginLeft: 5,
-  },
+
   sectionTitle: {
     fontSize: 16,
     fontWeight: '800',
