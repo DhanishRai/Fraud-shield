@@ -100,6 +100,25 @@ const ResultScreen = ({ route, navigation }) => {
     return simpleMode ? 'WARNING!' : 'SUSPICIOUS';
   };
 
+  const getRelatedLessonIndex = () => {
+    if (!reasons || reasons.length === 0) return 0;
+    const combinedReasons = reasons.join(' ').toLowerCase();
+    
+    if (combinedReasons.includes('qr')) return 1; // QR scam
+    if (combinedReasons.includes('merchant') || combinedReasons.includes('verif')) return 7; // Verify merchant
+    if (combinedReasons.includes('link') || combinedReasons.includes('url')) return 4; // Phishing
+    if (combinedReasons.includes('pin')) return 2; // UPI PIN
+    if (combinedReasons.includes('otp')) return 0; // OTP scam
+    if (combinedReasons.includes('kyc')) return 6; // KYC scam
+    if (combinedReasons.includes('customer care')) return 3; // Fake customer care
+    
+    return 0; // Default lesson
+  };
+
+  const navigateToEducation = () => {
+    navigation.navigate('LearnScreen', { initialLessonIndex: getRelatedLessonIndex() });
+  };
+
   const getStatusIcon = () => {
     if (isSafe) return <ShieldCheck color="#00C853" size={40} />;
     if (isHighRisk) return <ShieldAlert color="#FF1744" size={40} />;
@@ -160,7 +179,13 @@ const ResultScreen = ({ route, navigation }) => {
                   onPress={() => navigation.navigate('ReportScam', { 
                     upiId: parsedData?.upiId 
                   })} 
-                  style={{ backgroundColor: '#FF1744' }}
+                  style={{ backgroundColor: '#FF1744', marginBottom: 15 }}
+                />
+                <SecondaryButton 
+                  title="Learn Why This Is Risky" 
+                  onPress={navigateToEducation} 
+                  style={{ borderColor: '#0066FF', marginBottom: 15 }}
+                  textStyle={{ color: '#0066FF' }}
                 />
                 <SecondaryButton 
                   title={simpleMode ? "GO BACK" : "Cancel Payment"}

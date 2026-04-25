@@ -9,10 +9,12 @@ import { useSettings } from '../context/SettingsContext';
 
 const { width } = Dimensions.get('window');
 
-const LearnScreen = ({ navigation }) => {
+const LearnScreen = ({ route, navigation }) => {
   const { language } = useSettings();
   const t = translations[language] || translations['English'];
-  const [currentIndex, setCurrentIndex] = useState(0);
+  
+  const initialIndex = route.params?.initialLessonIndex || 0;
+  const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const flatListRef = useRef(null);
 
   const onViewRef = useRef(({ viewableItems }) => {
@@ -22,6 +24,16 @@ const LearnScreen = ({ navigation }) => {
   });
 
   const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50 });
+
+  React.useEffect(() => {
+    if (initialIndex > 0 && initialIndex < t.lessons.length) {
+      setTimeout(() => {
+        if (flatListRef.current) {
+          flatListRef.current.scrollToIndex({ index: initialIndex, animated: false });
+        }
+      }, 100);
+    }
+  }, [initialIndex]);
 
   const renderPagination = () => {
     return (
