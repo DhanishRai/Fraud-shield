@@ -9,6 +9,14 @@ def analyze_transaction(upi_id, merchant_name, amount, reports_count=0):
     71-100: dangerous
     """
     
+    # Trusted merchant override: always safe regardless of other rules
+    if check_trusted_merchant(merchant_name):
+        return {
+            "risk_score": 0,
+            "status": "SAFE",
+            "reason": ["Verified trusted merchant"]
+        }
+
     risk_score = 0
     reasons = []
 
@@ -26,25 +34,15 @@ def analyze_transaction(upi_id, merchant_name, amount, reports_count=0):
     except (ValueError, TypeError):
         pass # Invalid amount format
 
-    # 3. Check Trusted Merchant
-    if check_trusted_merchant(merchant_name):
-        risk_score = max(0, risk_score - 20) # Decrease risk if trusted
-        if not reasons:
-            reasons.append("Trusted merchant")
-    else:
-        if merchant_name:
-            risk_score += 15
-            reasons.append("Unknown merchant")
-        else:
-            risk_score += 20
-            reasons.append("No merchant name provided")
-
-    # 4. New UPI Logic
-    if risk_score == 0 and not check_trusted_merchant(merchant_name):
+    # 3. Check Merchant Name
+    if merchant_name:
         risk_score += 15
-        reasons.append("New/Unknown UPI")
+        reasons.append("Unknown merchant")
+    else:
+        risk_score += 20
+        reasons.append("No merchant name provided")
 
-    # 5. Dynamic Risk from Blacklist/Reports
+    # 4. Dynamic Risk from Blacklist/Reports
     if reports_count > 0:
         added_risk = reports_count * 20
         risk_score += added_risk
@@ -56,19 +54,14 @@ def analyze_transaction(upi_id, merchant_name, amount, reports_count=0):
     # Determine status
     if risk_score <= 30:
         status = "SAFE"
-        if not reasons:
-            reasons.append("Transaction appears safe")
+        reasons = ["Safe transaction"]
     elif risk_score <= 70:
         status = "SUSPICIOUS"
     else:
         status = "HIGH RISK"
 
-    # If it's safe but we had minor warnings (like new UPI), we can just say "Safe transaction"
-    if status == "SAFE" and "Trusted merchant" not in reasons:
-        reasons = ["Safe transaction"]
-
     return {
         "risk_score": risk_score,
         "status": status,
-        "reason": " | ".join(reasons)
+        "reason": reasons
     }
